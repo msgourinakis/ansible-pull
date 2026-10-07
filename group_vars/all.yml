@@ -1,3 +1,5 @@
 ---
 # Variables applied to every single server in the fleet
 system_timezone: Europe/Athens
+
+ansible_pull_repo: "https://github.com/msgourinakis/ansible-pull.git"
