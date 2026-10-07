@@ -1,0 +1,40 @@
+---
+- name: Distributed Self-Configuration via ansible-pull
+  hosts: localhost
+  connection: local
+  become: yes
+
+  tasks:
+    # 1. Fail early if the machine doesn't have an identity profile
+    - name: Ensure server identity fact exists
+      ansible.builtin.assert:
+        that:
+          - ansible_local.server_profile.identity.environment is defined
+          - ansible_local.server_profile.identity.role is defined
+        fail_msg: "This server is missing its local /etc/ansible/facts.d/server_profile.fact metadata."
+
+    # 2. Dynamically load the correct environment & role configuration variables
+    - name: Load specific profile variables
+      ansible.builtin.include_vars:
+        file: "group_vars/{{ ansible_local.server_profile.identity.environment }}_{{ ansible_local.server_profile.identity.role }}.yml"
+
+    # 3. Always apply the core baseline configuration to every single node
+    - name: Apply foundational baseline
+      ansible.builtin.include_role:
+        name: common
+
+    # 4. Conditionally load the specific technical stack role
+    - name: Apply HAProxy configuration
+      ansible.builtin.include_role:
+        name: haproxy
+      when: ansible_local.server_profile.identity.role == 'haproxy'
+
+    - name: Apply Web Server configuration
+      ansible.builtin.include_role:
+        name: webserver
+      when: ansible_local.server_profile.identity.role == 'webserver'
+
+    - name: Apply Database Server configuration
+      ansible.builtin.include_role:
+        name: dbserver
+      when: ansible_local.server_profile.identity.role == 'dbserver'
