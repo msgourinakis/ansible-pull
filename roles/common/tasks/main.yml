@@ -5,3 +5,11 @@
      dest: /etc/localtime
      state: link
      force: true
+
+- name: Schedule ansible-pull to run every 30 minutes
+  ansible.builtin.cron:
+     name: ansible-pull
+     user: root
+     minute: "*/30"
+     job: "/usr/bin/ansible-pull -o -U {{ ansible_pull_repo }} >> /var/log/ansible-pull.log"
+     cron_file: ansible-pull
