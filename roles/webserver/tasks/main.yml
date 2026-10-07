@@ -1,5 +1,5 @@
 ---
 - name: Install Nginx web server
   ansible.builtin.package:
-    name: nginx
+    name: "{{ packages }}"
     state: present
