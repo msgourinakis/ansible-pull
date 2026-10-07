@@ -1,0 +1,3 @@
+---
+# Variables applied to every single server in the fleet
+system_timezone: Europe/Athens
